@@ -6,7 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 import html
 
-generate = st.button("Click here to fetch auctions")
+st.title("Auction Webscraper")
+st.write("This app will update with the latest properties for auction each time it is run")
+st.write("The generate button will save the auctions to our local server no need to test")
+st.write("We will test that ourselves www.aidatalytics.co.uk")
+st.write("We know the interface including searches needs to be bolted on")
+st.write("Just open the app a few times you should notice that until 14 August that the data may change")
+st.write("Please let us know if the data doesn't change and thanks for helping!")
+generate = st.button("Click here to save auctions")
 
 url = "https://edwardmellor.co.uk/auctions/14aug2024/"
 
@@ -41,3 +48,4 @@ for prop in props:
 if generate:
     df = pd.DataFrame(props_file)
     df.to_csv("prop.csv", index=False, header=["Address", "Price", "Link"], encoding="cp1252")
+

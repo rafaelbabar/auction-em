@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import html
 
-st.title("Auction Webscraper")
+st.title("Auction Webscraper - Edward Mellor")
 st.write("This app will update with the latest properties for auction each time it is run")
 st.write("The generate button will save the auctions to our local server no need to test")
 st.write("We will test that ourselves www.aidatalytics.co.uk")

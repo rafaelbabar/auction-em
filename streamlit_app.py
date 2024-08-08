@@ -27,7 +27,7 @@ base_url = "https://edwardmellor.co.uk/property-for-sale/"
 
 for prop in props:
     address = prop.find("div", class_="col-9 col-md-5").text.strip()
-    price = prop.find("span", class_="h2").text.strip()
+    price = prop.find("span", class_="h2").text.strip() if prop.find("span", class_="h2") else "N/A"
     price = html.unescape(price)  # Unescape HTML entities in price
     link_tag = prop.find("a", href=True)
     

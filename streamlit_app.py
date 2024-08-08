@@ -3,14 +3,14 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import html
-#OneDrive\Desktop\Projects>streamlit run web-scrape9b.py
+#OneDrive\Desktop\Projects>streamlit run web-scrape9d.py
 st.title("Auction Webscraper - Edward Mellor")
 st.write("This app will update with the latest properties for auction each time it is run")
 st.write("The generate button will save the auctions to our local server no need to test")
 st.write("We will test that ourselves www.aidatalytics.co.uk")
-st.write("We have bolted on a filter, please test that it works!")
+st.write("We know the interface including searches needs to be bolted on")
 st.write("Just open the app a few times you should notice that until 14 August that the data may change")
-st.write("Thanks for helping!")
+st.write("Please let us know if the data doesn't change and thanks for helping!")
 
 url = "https://edwardmellor.co.uk/auctions/14aug2024/"
 
@@ -44,10 +44,19 @@ for prop in props:
         town = address_parts[-2].strip()
         towns.append(town)
     
-    props_file.append([address, town, price, full_link])
+    # Clean and store price for filtering
+    clean_price = price.replace("£", "").replace(",", "").strip()
+    price_value = int(clean_price) if clean_price.isdigit() else None
+    
+    props_file.append([address, town, price, price_value, full_link])
 
 # Remove duplicates and sort the list of towns for the dropdown
 towns = sorted(set(towns))
+
+# Price range inputs with default values
+st.write("Set your price range:")
+min_price = st.number_input("Minimum Price", min_value=1, value=1)
+max_price = st.number_input("Maximum Price", min_value=1, value=100000000)
 
 # Create a dropdown for towns
 selected_town = st.selectbox("Select a town to filter properties", towns)
@@ -59,15 +68,24 @@ if apply_filter:
     # Filter properties based on the selected town
     filtered_props = [prop for prop in props_file if prop[1] == selected_town]
 
+    # Further filter by price range
+    filtered_props = [prop for prop in filtered_props if (prop[3] is not None and min_price <= prop[3] <= max_price) or prop[3] is None]
+
+    # Sort results: properties with valid prices first, then "N/A"
+    filtered_props.sort(key=lambda x: (x[3] is None, x[3]))
+
     # Display the filtered properties
-    for prop in filtered_props:
-        st.success(prop[0])  # Address
-        st.write(prop[2])  # Price
-        if prop[3] != "#":
-            st.markdown(f"[Link to Property]({prop[3]})", unsafe_allow_html=True)
+    if filtered_props:
+        for prop in filtered_props:
+            st.success(prop[0])  # Address
+            st.write(f"Price: {prop[2]}")  # Price
+            if prop[4] != "#":
+                st.markdown(f"[Link to Property]({prop[4]})", unsafe_allow_html=True)
+    else:
+        st.write("No properties found for the selected filters.")
 
 generate = st.button("Click here to save auctions")
 # Option to save the filtered data
-if generate:
-    df = pd.DataFrame(filtered_props, columns=["Address", "Town", "Price", "Link"])
+if generate and apply_filter:
+    df = pd.DataFrame(filtered_props, columns=["Address", "Town", "Price", "Price Value", "Link"])
     df.to_csv("prop.csv", index=False, encoding="cp1252")
